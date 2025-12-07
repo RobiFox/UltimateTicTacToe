@@ -55,8 +55,15 @@ public class GameHub(GameService games) : Hub {
                 gs.PlayerTurn = 1;
             }
             await Clients.Group(gameId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));
+            if (gs.WonBy != -1) {
+                games.KillGame(gameId);
+            }
         } else {
             Console.WriteLine("invalid move");
         }
+    }
+
+    public async override Task OnDisconnectedAsync(Exception? exception) {
+        string connectionId = Context.ConnectionId;
     }
 }

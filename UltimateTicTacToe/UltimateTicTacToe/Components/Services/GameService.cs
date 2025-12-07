@@ -15,4 +15,14 @@ public class GameService {
     public GameState? GetGameState(string gameId) {
         return _games[gameId];
     }
+
+    public void KillGame(string gameId) {
+        _games.TryRemove(gameId, out _);
+    }
+
+    public void RemoveFromgame(string connectionId) {
+        foreach(GameState gs in _games.Values) {
+            gs.GetPlayer()
+        }
+    }
 }
