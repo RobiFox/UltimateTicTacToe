@@ -2,4 +2,10 @@
     display: grid;
     grid-template-columns: repeat(3, max-content);
     gap: 1px;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.selectable {
+    background-color: #ffdbc2;
 }

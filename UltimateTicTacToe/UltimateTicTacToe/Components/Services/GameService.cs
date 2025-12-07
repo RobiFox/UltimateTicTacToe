@@ -6,7 +6,7 @@ namespace UltimateTicTacToe.Components.Services;
 
 public class GameService {
     // id
-    private ConcurrentDictionary<string, GameState> _games = new ();
+    private readonly ConcurrentDictionary<string, GameState> _games = new ();
 
     public GameState GetOrCreateGameState(string gameId) {
         return _games.GetOrAdd(gameId, _ => new GameState());

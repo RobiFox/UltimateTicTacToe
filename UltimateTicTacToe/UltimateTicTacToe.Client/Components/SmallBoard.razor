@@ -1,20 +1,19 @@
 ﻿@using UltimateTicTacToe.Components.Models
 
-<div class="board">
+<div class="board @(Selectable ? "selectable" : "")">
     @for (int j = 0; j < 3; j++) {
         @for (int i = 0; i < 3; i++) {
-            <BoardTile TileType="@Board[i][j]" X="@i" Y="@j" GameId="@GameId" TileClicked="@Click"/>
+            <BoardTile TileType="@Board[i,j]" X="@i" Y="@j" TileClicked="@Click"/>
         }
     }
 </div>
 
 @code {
-    [Parameter] public required List<List<int>> Board { get; set; }
+    [Parameter] public required int[,] Board { get; set; }
     [Parameter] public required int I { get; set; }
     [Parameter] public required int J { get; set; }
-    [Parameter] public required string GameId { get; set; }
     [Parameter] public EventCallback<MoveInput> TileClicked { get; set; }
-    
+    [Parameter] public bool Selectable { get; set; }
     
     private async Task Click((int x, int y) input) {
         await TileClicked.InvokeAsync(new MoveInput {

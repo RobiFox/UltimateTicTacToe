@@ -9,18 +9,28 @@ namespace UltimateTicTacToe.Components.GameHub;
 
 public class GameHub(GameService games) : Hub {
     public async Task JoinGame(string gameId) {
+        Console.WriteLine($"{Context.ConnectionId} is joining {gameId}");
         GameState gs = games.GetOrCreateGameState(gameId);
         int? p = gs.GetPlayer(Context.ConnectionId);
         if (p != null) {
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-            await Clients.Client(Context.ConnectionId).SendAsync("InitData", new InitData { MyPlayer = p.Value});
+            await Clients.Client(Context.ConnectionId).SendAsync("InitData",
+                JsonConvert.SerializeObject(new InitData { MyPlayer = p.Value }));
             await Clients.Client(Context.ConnectionId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));
+            Console.WriteLine("Player exists, updating");
             return;
         }
-        if (gs.PlayerCount >= 2) return;
+        if (gs.PlayerCount >= 2) {
+            // spectator?
+            await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+            await Clients.Client(Context.ConnectionId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));
+        }
+
         int c = gs.RegisterPlayer(Context.ConnectionId);
+        Console.WriteLine($"{Context.ConnectionId} registered {gameId}");
         await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-        await Clients.Client(Context.ConnectionId).SendAsync("InitData", new InitData { MyPlayer = c});
+        await Clients.Client(Context.ConnectionId)
+            .SendAsync("InitData", JsonConvert.SerializeObject(new InitData { MyPlayer = c }));
         await Clients.Client(Context.ConnectionId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));
     }
 
@@ -37,11 +47,13 @@ public class GameHub(GameService games) : Hub {
             Console.WriteLine("player not found");
             return;
         }
-        
-        bool validMove = gs!.MakeMove(player.Value, moveInput.X, moveInput.Y, moveInput.I, moveInput.J);
+
+        bool validMove = gs!.MakeMove(player.Value, moveInput.I, moveInput.J, moveInput.X, moveInput.Y);
         if (validMove) {
-            Console.WriteLine("sending update");
-            Console.WriteLine(gs.Board[moveInput.X][moveInput.Y].Board[moveInput.I][moveInput.J]);
+            gs.PlayerTurn++;
+            if (gs.PlayerTurn > gs.PlayerCount) {
+                gs.PlayerTurn = 1;
+            }
             await Clients.Group(gameId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));
         } else {
             Console.WriteLine("invalid move");

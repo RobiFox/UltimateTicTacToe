@@ -1,9 +1,9 @@
 ﻿namespace UltimateTicTacToe.Shared.Models;
 
 public class GameState {
-    public List<List<GameBoard>> Board { get; set; } = [];
+    public GameBoard[,] Board { get; set; } = new GameBoard[3, 3];
 
-    public int PlayerTurn { get; set; } = 0;
+    public int PlayerTurn { get; set; } = 1;
 
     public (int, int) AllowedBoard { get; set; } = (-1, -1); // for all
 
@@ -13,10 +13,10 @@ public class GameState {
 
     public GameState() {
         if (OperatingSystem.IsBrowser()) return;
+
         for (int i = 0; i < 3; i++) {
-            Board.Add([]);
             for (int j = 0; j < 3; j++) {
-                Board[i].Add(new GameBoard());
+                Board[i, j] = new GameBoard();
             }
         }
     }
@@ -34,28 +34,32 @@ public class GameState {
     }
 
     public bool MakeMove(int player, int x, int y, int i, int j) {
-        //if (player != PlayerTurn) return false;
-        if (Board[x][y].WonBy != -1) {
+        if (player != PlayerTurn) return false;
+        if (AllowedBoard != (x, y) && AllowedBoard != (-1, -1)) {
+            Console.WriteLine("invalid small board");
+            return false;
+        }
+        if (Board[x, y].WonBy != -1) {
             Console.WriteLine("board is already won");
             return false;
         }
 
-        if (Board[x][y].MakeMove(player, i, j)) {
-            AllowedBoard = Board[i][j].WonBy == -1
+        if (Board[x, y].MakeMove(player, i, j)) {
+            AllowedBoard = Board[i, j].WonBy == -1
                 ? (i, j)
                 : (-1, -1);
-            Console.WriteLine(Board[x][y].Board[i][j]);
+            Console.WriteLine(Board[x, y].Board[i, j]);
             return true;
         }
         return false;
     }
 
-    public List<List<int>> BoardToWinnerBoard() {
-        List<List<int>> board = [];
-        for (int i = 0; i < 3; i++) {
-            board.Add([]);
-            for (int j = 0; j < 3; j++) {
-                board[i].Add(Board[i][j].WonBy);
+    public int[,] BoardToWinnerBoard() {
+        int[,] board = new int[3, 3];
+
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                board[i, j] = Board[i, j].WonBy;
             }
         }
         return board;
