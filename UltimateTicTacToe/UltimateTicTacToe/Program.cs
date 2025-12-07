@@ -5,11 +5,11 @@ using UltimateTicTacToe.Components.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 builder.Services.AddSignalR().AddNewtonsoftJsonProtocol();
-;
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton<GameService>();
 
 var app = builder.Build();
@@ -29,6 +29,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(UltimateTicTacToe.Client._Imports).Assembly);

@@ -1,0 +1,45 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@rendermode InteractiveWebAssembly
+
+<div
+    style="display: flex; flex-direction: column; gap: 4px; width: 100%; height: 100%; justify-content: center; align-items: center;">
+    <div style="display: flex; width: 100%; height: 100%; justify-content: center; align-items: center; gap: 4px">
+        <button class="btn btn-primary" @onclick="JoinPublicRoom">Join public room</button>
+        <button class="btn btn-primary" @onclick="CreatePrivateRoom">Create private room</button>
+    </div>
+
+    <div style="display: flex; width: 100%; height: 100%; justify-content: center; align-items: center; gap: 4px">
+        <input @bind="inputId" maxlength="12">
+        <button class="btn btn-primary" @onclick="JoinPrivateRoom">Join room</button>
+    </div>
+    @if (invalidMsg != null) {
+        <div>Code @invalidMsg is invalid.</div>
+    }
+</div>
+
+@code {
+    public string inputId = "";
+    public string? invalidMsg = null;
+    public async Task JoinPublicRoom() {
+        string id = await Http.GetStringAsync("/api/game/public");
+        Console.WriteLine("received id " + id);
+        Navigation.NavigateTo($"/game/{id}");
+    }
+
+    public async Task CreatePrivateRoom() {
+        string id = await Http.GetStringAsync("/api/game/private");
+        Navigation.NavigateTo($"/game/{id}");
+    }
+
+    public async void JoinPrivateRoom() {
+        bool valid = await Http.GetStringAsync($"/api/game/is_valid/{inputId}") == "true";
+        if (valid) {
+            Navigation.NavigateTo($"/game/{inputId}");
+        } else {
+            invalidMsg = inputId;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

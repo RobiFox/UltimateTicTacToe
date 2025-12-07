@@ -29,9 +29,9 @@ public class GameState {
         _players.Add(id, c);
         return c;
     }
-    
-    public void UnregisterPlayer(string id) {
-        _players.Remove(id);
+
+    public bool UnregisterPlayer(string id) {
+        return _players.Remove(id);
     }
 
     public int? GetPlayer(string id) {
@@ -43,6 +43,7 @@ public class GameState {
     public bool MakeMove(int player, int x, int y, int i, int j) {
         if (player != PlayerTurn) return false;
         if (WonBy != -1) return false;
+
         if (AllowedBoard != (x, y) && AllowedBoard != (-1, -1)) {
             Console.WriteLine("invalid small board");
             return false;
@@ -53,7 +54,7 @@ public class GameState {
         }
 
         if (Board[x, y].MakeMove(player, i, j)) {
-            AllowedBoard = Board[i, j].WonBy == -1
+            AllowedBoard = Board[i, j].WonBy == -1 && !UtilHelper.IsDraw(Board[i, j].Board)
                 ? (i, j)
                 : (-1, -1);
             Console.WriteLine(Board[x, y].Board[i, j]);

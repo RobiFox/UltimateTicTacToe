@@ -13,4 +13,8 @@ public static class UtilHelper {
                || board[0, 2] == i && board[1, 1] == i && board[2, 0] == i
             ;
     }
+    
+    public static bool IsDraw(int[,] board) {
+        return board.Cast<int>().All(a => a != -1);
+    }
 }

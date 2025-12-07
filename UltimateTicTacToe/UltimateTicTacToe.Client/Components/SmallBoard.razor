@@ -1,7 +1,7 @@
 ﻿@using UltimateTicTacToe.Components.Models
 
 <div class="relative">
-    <div class="board relative @((Playable && WonBy != -1) ? "selectable" : "")">
+    <div class="board relative @((Playable && WonBy == -1) ? "selectable" : "")">
         @for (int j = 0; j < 3; j++) {
             @for (int i = 0; i < 3; i++) {
                 <BoardTile TileType="@Board[i,j]" X="@i" Y="@j" TileClicked="@Click"/>

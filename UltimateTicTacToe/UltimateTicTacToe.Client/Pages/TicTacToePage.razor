@@ -29,8 +29,16 @@
                         <div class="tile tile-@(_initData?.MyPlayer)" style="width: 32px; height: 32px;"><div></div></div>
                     </div>
                 </div>
-                @if (_initData?.MyPlayer == _gameState.PlayerTurn) {
-                    <div>It is your turn.</div>
+                @if (_gameState.WonBy != -1) {
+                    <div style="display: flex; flex-direction: row; align-items: center; gap: 4px">
+                        <div>Game won by</div>
+                        <div class="tile tile-@(_gameState?.WonBy)" style="width: 32px; height: 32px;"><div></div></div>
+                        <div>!</div>
+                    </div>
+                } else {
+                    @if (_initData?.MyPlayer == _gameState.PlayerTurn) {
+                        <div>It is your turn.</div>
+                    }
                 }
             </div>
         }

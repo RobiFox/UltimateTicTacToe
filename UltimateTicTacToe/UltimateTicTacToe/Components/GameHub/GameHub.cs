@@ -10,7 +10,8 @@ namespace UltimateTicTacToe.Components.GameHub;
 public class GameHub(GameService games) : Hub {
     public async Task JoinGame(string gameId) {
         Console.WriteLine($"{Context.ConnectionId} is joining {gameId}");
-        GameState gs = games.GetOrCreateGameState(gameId);
+        GameState? gs = games.GetGameState(gameId);
+        if (gs == null) return;
         int? p = gs.GetPlayer(Context.ConnectionId);
         if (p != null) {
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
@@ -20,11 +21,12 @@ public class GameHub(GameService games) : Hub {
             Console.WriteLine("Player exists, updating");
             return;
         }
-        if (gs.PlayerCount >= 2) {
+        if (gs.PlayerCount > 2) {
             // spectator?
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
             await Clients.Client(Context.ConnectionId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));
-        }
+            return;
+        } 
 
         int c = gs.RegisterPlayer(Context.ConnectionId);
         Console.WriteLine($"{Context.ConnectionId} registered {gameId}");
@@ -63,7 +65,9 @@ public class GameHub(GameService games) : Hub {
         }
     }
 
-    public async override Task OnDisconnectedAsync(Exception? exception) {
+    public override Task OnDisconnectedAsync(Exception? exception) {
         string connectionId = Context.ConnectionId;
+        games.RemoveFromGame(connectionId);
+        return Task.CompletedTask;
     }
 }
