@@ -51,7 +51,7 @@ public class GameHub(GameService games) : Hub {
         bool validMove = gs!.MakeMove(player.Value, moveInput.I, moveInput.J, moveInput.X, moveInput.Y);
         if (validMove) {
             gs.PlayerTurn++;
-            if (gs.PlayerTurn > gs.PlayerCount) {
+            if (gs.PlayerTurn > 2) {
                 gs.PlayerTurn = 1;
             }
             await Clients.Group(gameId).SendAsync("UpdateState", JsonConvert.SerializeObject(gs));

@@ -58,3 +58,50 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+
+
+.tile {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    border: 2px solid #c8cfd8;
+    border-radius: 4px;
+
+    background-color: #e1dcd5;
+}
+
+.tile div {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+.tile-1 {
+    background-color: #e05b5b;
+}
+
+.tile-2 {
+    background-color: #5b81e0;
+}
+
+.tile-1 div {
+    background-color: white;
+    mask: url('x.svg') no-repeat center;
+    mask-size: contain;
+    transform: translateY(5%); /* :D */
+}
+
+.tile-2 div {
+    background-color: white;
+    mask: url('o.svg') no-repeat center;
+    mask-size: contain;
+    transform: translateY(8.5%);
+}

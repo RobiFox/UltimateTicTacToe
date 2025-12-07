@@ -1,11 +1,17 @@
 ﻿@using UltimateTicTacToe.Components.Models
 
-<div class="board @(Selectable ? "selectable" : "")">
-    @for (int j = 0; j < 3; j++) {
-        @for (int i = 0; i < 3; i++) {
-            <BoardTile TileType="@Board[i,j]" X="@i" Y="@j" TileClicked="@Click"/>
+<div class="relative">
+    <div class="board relative @(Playable ? "selectable" : "")">
+        @for (int j = 0; j < 3; j++) {
+            @for (int i = 0; i < 3; i++) {
+                <BoardTile TileType="@Board[i,j]" X="@i" Y="@j" TileClicked="@Click"/>
+            }
         }
-    }
+    
+    </div>
+    <div class="winner winner-@(WonBy)">
+        
+    </div>
 </div>
 
 @code {
@@ -13,7 +19,8 @@
     [Parameter] public required int I { get; set; }
     [Parameter] public required int J { get; set; }
     [Parameter] public EventCallback<MoveInput> TileClicked { get; set; }
-    [Parameter] public bool Selectable { get; set; }
+    [Parameter] public bool Playable { get; set; }
+    [Parameter] public int WonBy { get; set; }
     
     private async Task Click((int x, int y) input) {
         await TileClicked.InvokeAsync(new MoveInput {
