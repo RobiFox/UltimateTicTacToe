@@ -33,7 +33,7 @@
         Navigation.NavigateTo($"/game/{id}");
     }
 
-    public async void JoinPrivateRoom() {
+    public async Task JoinPrivateRoom() {
         bool valid = await Http.GetStringAsync($"/api/game/is_valid/{inputId}") == "true";
         if (valid) {
             Navigation.NavigateTo($"/game/{inputId}");
