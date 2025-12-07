@@ -1,0 +1,68 @@
+﻿@page "/game/{GameId}"
+@using System.Text.Json
+@using Microsoft.AspNetCore.SignalR.Client
+@using Newtonsoft.Json
+@using UltimateTicTacToe.Client.Components
+@using UltimateTicTacToe.Components.Models
+@using UltimateTicTacToe.Shared.Models
+@using JsonSerializer = System.Text.Json.JsonSerializer
+@inject NavigationManager Navigation
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Ultimate Tic Tac Toe</PageTitle>
+@if (_gameState != null) {
+    <div class="board">
+        @for (int j = 0; j < 3; j++) {
+            @for (int i = 0; i < 3; i++) {
+                <SmallBoard Board="@_gameState.Board[i][j].Board" I="@i" J="@j" GameId="@GameId" TileClicked="@Click"/>
+            }
+        }
+    </div>
+}
+
+@code {
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+    [Parameter] public string GameId { get; set; } = null!;
+    
+    private int currentCount = 0;
+    private HubConnection? hubConnection;
+    private InitData? _initData;
+    private GameState? _gameState;
+
+    protected override async Task OnInitializedAsync() {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/gamehub"))
+            .AddNewtonsoftJsonProtocol()
+            .Build();
+
+        hubConnection.On<InitData>("InitData", (initData) => {
+            _initData = initData;
+            InvokeAsync(StateHasChanged);
+        });
+        
+        hubConnection.On<string>("UpdateState", (gameState) => {
+            _gameState = JsonConvert.DeserializeObject<GameState>(gameState);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+        await hubConnection.SendAsync("JoinGame", GameId);
+    }
+
+    private async Task IncrementCount() {
+        if (hubConnection != null)
+            await hubConnection.SendAsync("SendMessage", 1);
+    }
+
+    public async ValueTask DisposeAsync() {
+        if (hubConnection != null)
+            await hubConnection.DisposeAsync();
+    }
+    
+    private async Task Click(MoveInput input) {
+        if (hubConnection == null) return;
+        Console.WriteLine($"making move: {input.I} {input.J} {input.X} {input.Y}");
+        await hubConnection.SendAsync("MakeMove", GameId, input);
+    }
+}

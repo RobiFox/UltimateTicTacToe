@@ -1,0 +1,27 @@
+﻿@using UltimateTicTacToe.Components.Models
+
+<div class="board">
+    @for (int j = 0; j < 3; j++) {
+        @for (int i = 0; i < 3; i++) {
+            <BoardTile TileType="@Board[i][j]" X="@i" Y="@j" GameId="@GameId" TileClicked="@Click"/>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public required List<List<int>> Board { get; set; }
+    [Parameter] public required int I { get; set; }
+    [Parameter] public required int J { get; set; }
+    [Parameter] public required string GameId { get; set; }
+    [Parameter] public EventCallback<MoveInput> TileClicked { get; set; }
+    
+    
+    private async Task Click((int x, int y) input) {
+        await TileClicked.InvokeAsync(new MoveInput {
+            X = input.x,
+            Y = input.y,
+            I = I,
+            J = J
+        });
+    }
+}
